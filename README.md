@@ -1,6 +1,5 @@
-# zatlapp
-
-A new Flutter project.
+# Zatlapp
+Hybride mobile drinking game made by drunks for drunks.
 
 ## Getting Started
 
