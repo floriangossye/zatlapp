@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "422318689777",
+    "firebase_url": "https://zatlapp-2ebfd.firebaseio.com",
+    "project_id": "zatlapp-2ebfd",
+    "storage_bucket": "zatlapp-2ebfd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:422318689777:android:3ac4817cbcdd5ffcca4850",
+        "android_client_info": {
+          "package_name": "com.example.zatlapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "422318689777-a64fmlupemn7230onnpn00gkbvt0fakf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC73mlQp4R8cR_9Tc2LeFiaBcsR_zKt5IY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "422318689777-a64fmlupemn7230onnpn00gkbvt0fakf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
