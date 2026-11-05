@@ -1,0 +1,7 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "zatlapp",
+  "compatibility_date": "2026-11-05",
+  "assets": { "directory": "./public" },
+  "observability": { "enabled": false }
+}
