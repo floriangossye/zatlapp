@@ -1,4 +1,8 @@
 // Pure rules: no DOM, storage or random values. UI and tests share this engine.
+export function playersFromCount(count) {
+  if (!Number.isInteger(count) || count < 2 || count > 16) throw new Error('Kies 2 tot 16 spelers.');
+  return Array.from({length: count}, (_, i) => `Speler ${i + 1}`);
+}
 export function freshGame(players) {
   return { players: [...players], turn: 0, threeMan: null, multiplier: 1, rolls: 0, last: null };
 }

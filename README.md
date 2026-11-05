@@ -31,6 +31,10 @@ Als alternatief kan Cloudflare Pages dezelfde repo hosten: framework **None**, g
 
 De hosting is nog niet geactiveerd vanuit deze checkout: aanmelden en het juiste persoonlijke Cloudflare-account verifiëren zijn nodig. Geen tokens opnemen in GitHub, broncode of README.
 
+## Spelers
+
+3-man kan direct starten met alleen het aantal spelers (2–16). De app gebruikt dan Speler 1, Speler 2, enzovoort, volgens de zitvolgorde. Namen toevoegen blijft optioneel via **Liever met namen?**. De gekozen spelers en de partij blijven lokaal bewaard; een andere groep start een nieuwe partij.
+
 ## Regels in deze POC
 
 | Worp | Opdracht |
@@ -61,6 +65,6 @@ Namen en de huidige partij worden bewaard onder `zatlapp.v1` in `localStorage`, 
 
 `npm test` controleert alle 36 worpen, rolwissels en verdubbeling, overlappende regels, beurtvolgorde, ongeldige invoer en willekeurige dobbelwaarden. Browsercontrole omvat spelers toevoegen, handmatige worpen, 3-man-toewijzing, terugdraaien, herladen en hervatten. De mobiele layout is gecontroleerd in een browserframe van 390 pixels breed; nog te testen op een fysiek toestel.
 
-Nieuwe webapp vanaf een schone start. De oude Flutter-bestanden en branches maken geen deel uit van deze basis.
+Nieuwe webapp vanaf een schone start. De oude Flutter-bestanden maken geen deel uit van deze basis.
 
 Officiële configuratiereferenties: [statische assets](https://developers.cloudflare.com/workers/static-assets/binding/) en [Workers Builds](https://developers.cloudflare.com/workers/ci-cd/builds/configuration/).

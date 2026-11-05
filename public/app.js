@@ -1,4 +1,4 @@
-import {freshGame, resolveRoll, randomDie} from './game.js';
+import {freshGame, resolveRoll, randomDie, playersFromCount} from './game.js';
 const $ = s => document.querySelector(s);
 const KEY = 'zatlapp.v1';
 let players = [], game = null, history = [], screen = 'hub', manual = false, rolling = false;
@@ -13,7 +13,7 @@ try {
 const escape = text => String(text).replace(/[&<>"']/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 function save() { try {localStorage.setItem(KEY, JSON.stringify({players,game}));} catch { toast('Bewaren lukt niet in deze browser. Je kunt wel verder spelen.');} }
 function toast(text) { $('#toast').textContent = text; $('#toast').classList.add('show'); clearTimeout(toast.timer); toast.timer=setTimeout(()=>$('#toast').classList.remove('show'),4000); }
-function avatar(name,i) {return `<span class="avatar color-${i%6}">${escape(name.slice(0,1).toUpperCase())}</span>`;}
+function avatar(name,i) {return `<span class="avatar color-${i%6}">${escape(/^Speler (\d+)$/.exec(name)?.[1] || name.slice(0,1).toUpperCase())}</span>`;}
 const scene = `<svg class="diorama" viewBox="0 0 620 510" role="img" aria-label="Een vrolijke 3-man dobbelsteen op een zwevend speeleiland"><defs><linearGradient id="base" x2="0" y2="1"><stop stop-color="#b5cc91"/><stop offset="1" stop-color="#739a7b"/></linearGradient><linearGradient id="face" x2="0" y2="1"><stop stop-color="#ffde89"/><stop offset="1" stop-color="#f7bb6f"/></linearGradient><linearGradient id="ivory" x2="0" y2="1"><stop stop-color="#fffcec"/><stop offset="1" stop-color="#e3dfc4"/></linearGradient><filter id="shadow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="10"/></filter></defs>
 <ellipse cx="315" cy="447" rx="160" ry="20" fill="#346a59" opacity=".13" filter="url(#shadow)"/>
 <g class="island"><path d="M115 322Q115 302 138 291L295 218Q310 210 329 219L494 295Q513 303 513 322V345Q513 358 495 367L332 443Q315 451 295 442L134 366Q115 357 115 344Z" fill="url(#base)"/><path d="M123 312L296 231Q310 224 328 231L505 313L332 395Q314 403 295 395Z" fill="#d6e8aa"/><path d="M143 315L299 242Q312 236 326 242L485 315L329 389Q313 395 297 388Z" fill="#e6edbd"/><path d="M174 315L310 252M231 344L368 278M291 373L429 307M199 289L369 369M255 263L426 343" stroke="#cbdcaa" stroke-width="2" opacity=".8"/><path d="M127 343L297 423Q314 432 333 423L502 344" stroke="#d3deab" stroke-width="4" fill="none" opacity=".5"/>
@@ -26,7 +26,7 @@ const scene = `<svg class="diorama" viewBox="0 0 620 510" role="img" aria-label=
 function renderHub() {
   $('#app').innerHTML = `<section class="hub"><div class="hub-intro"><div class="eyebrow"><span class="tiny-star">✳</span> TELEFOON OP TAFEL. BENDE ERROND.</div><h1>Gooi iets<br>in de <span class="serif-word">groep.</span><span class="title-star" aria-hidden="true">✳</span></h1><p class="intro-copy">Goed gezelschap. Slechte worpen.<br>De rest regelen wij wel.</p><button class="text-button" id="intro-crew">${players.length ? `${players.length} spelers aan tafel` : 'Verzamel je bende'} <span aria-hidden="true">↗</span></button><div class="crew-preview">${players.slice(0,5).map(avatar).join('')}<span>${players.length ? players.length > 5 ? `+${players.length-5} andere legendes` : 'De tafel is gedekt.' : 'Geen login. Gewoon samen spelen.'}</span></div></div><div class="hero-world"><span class="world-label">HET LEVEN IS EEN DOBBELSPEL</span>${scene}<span class="world-caption"><span class="status-dot"></span> De 3-man wacht op zijn bende.</span><span class="world-index">01 / ∞</span></div></section><section class="games-section" aria-labelledby="games-title"><div class="section-title"><h2 id="games-title">Wat spelen we?</h2><span>ÉÉN TAFEL. ALLE SPELLETJES.</span></div><div class="game-grid"><button class="game-card available" id="play-three"><div class="game-card-top"><span class="tag">KLAAR OM TE SPELEN</span><span class="game-number">01</span></div><div class="game-card-body"><span class="mini-dice" aria-hidden="true">⚂</span><div><h3>3-man<span class="tiny-dot">.</span></h3><p>Twee dobbelstenen. Eén ongelukkige.</p></div><span class="round-arrow" aria-hidden="true">↗</span></div><div class="game-meta"><span>2–16 spelers</span><span>Jullie huisregels</span><span>∞ plezier</span></div></button><article class="game-card soon"><div class="game-card-top"><span class="tag">NOG EVEN GEDULD</span><span class="game-number">02</span></div><div class="game-card-body"><span class="mini-cards" aria-hidden="true">▱</span><div><h3>Volgende ronde</h3><p>Er is nog plaats aan tafel.</p></div><span class="coming-star" aria-hidden="true">✳</span></div><div class="game-meta"><span>Meer spelletjes volgen</span></div></article></div></section>`;
   $('#intro-crew').onclick = openCrew;
-  $('#play-three').onclick = () => { if(players.length < 2) {openCrew();toast('Nog minstens twee namen en we zijn vertrokken.');} else startGame(); };
+  $('#play-three').onclick = () => { if(players.length < 2) {openCrew();} else startGame(); };
 }
 function startGame() {if(!game)game=freshGame(players);screen='game';render();save();window.scrollTo({top:0,behavior:'smooth'});}
 const pips = {1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
@@ -51,6 +51,8 @@ function doRoll(a,b) {
 function render() {$('#crew-count').textContent=players.length;screen==='game'?renderGame():renderHub();}
 function openCrew() {if(rolling)return;renderPlayers();$('#crew-dialog').showModal();}
 function renderPlayers() {
+  const count = Math.max(2, players.length || 4);
+  $('#player-count').innerHTML = Array.from({length:15}, (_,i) => `<option value="${i+2}" ${i+2===count?'selected':''}>${i+2} spelers</option>`).join('');
   $('#player-list').innerHTML=players.map((p,i)=>`<li>${avatar(p,i)}<strong>${escape(p)}</strong><div class="player-actions"><button class="icon-button" data-up="${i}" aria-label="${escape(p)} eerder aan de beurt" ${i===0?'disabled':''}>↑</button><button class="icon-button" data-remove="${i}" aria-label="${escape(p)} verwijderen">×</button></div></li>`).join('') || '<li class="empty-players">Een lege tafel. Wie schuift als eerste aan?</li>';
   $('#roster-warning').textContent=game?'Een wijziging aan de bende start een nieuwe partij.':'';
   $('#crew-done').textContent=players.length<2?'Nog minstens 2 spelers nodig':`${players.length} spelers. We zijn vertrokken ↗`;
@@ -66,6 +68,18 @@ $('#add-player').onsubmit=e=>{
   players.push(name);input.value='';rosterChanged();input.focus();
 };
 $('#player-list').onclick=e=>{const remove=e.target.closest('[data-remove]'),up=e.target.closest('[data-up]');if(remove){players.splice(Number(remove.dataset.remove),1);rosterChanged();}if(up){const i=Number(up.dataset.up);if(i>0){[players[i-1],players[i]]=[players[i],players[i-1]];rosterChanged();}}};
+$('#quick-start').onsubmit=e=>{
+  e.preventDefault();
+  let numberedPlayers;
+  try {numberedPlayers=playersFromCount(Number($('#player-count').value));}
+  catch(error) {toast(error.message);return;}
+  if(JSON.stringify(players)!==JSON.stringify(numberedPlayers)) {
+    players=numberedPlayers;
+    rosterChanged();
+  }
+  $('#crew-dialog').close();
+  startGame();
+};
 $('#crew-done').onclick=()=>{$('#crew-dialog').close();startGame();};
 $('#crew-nav').onclick=openCrew;
 $('#hub-nav').onclick=()=>{if(!rolling){screen='hub';render();}};
