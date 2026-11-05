@@ -1,3 +1,4 @@
+import {animateDice} from './dice.js';
 import {freshGame, resolveRoll, randomDie, playersFromCount} from './game.js';
 const $ = s => document.querySelector(s);
 const KEY = 'zatlapp.v1';
@@ -30,23 +31,40 @@ function renderHub() {
 }
 function startGame() {if(!game)game=freshGame(players);screen='game';render();save();window.scrollTo({top:0,behavior:'smooth'});}
 const pips = {1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
-function die(value) {return `<div class="die" role="img" aria-label="${value} ogen">${Array.from({length:9},(_,i)=>`<i class="${pips[value].includes(i)?'pip':''}"></i>`).join('')}</div>`;}
+function die(value, index) {
+  const faces = [1,2,3,4,5,6].map(face => `<div class="die-face die-face--${face}" aria-hidden="true">${Array.from({length:9},(_,i)=>`<i class="${pips[face].includes(i)?'pip':''}"></i>`).join('')}</div>`).join('');
+  return `<div class="die-wrap"><span class="die-ground" aria-hidden="true"></span><span class="die-impact" aria-hidden="true"></span><div class="die die--${index} face-up-${value}" data-value="${value}" role="img" aria-label="${value} ogen"><div class="die-cube">${faces}</div></div></div>`;
+}
 function renderGame() {
   const last = game.last, current = game.players[game.turn];
-  $('#app').innerHTML = `<section class="play-screen"><div class="play-heading"><button class="text-button" id="back-hub">← De spelletjes</button><span class="eyebrow">3-MAN · JULLIE HUISREGELS</span><button class="secondary-button" id="show-rules">Spelregels <span aria-hidden="true">?</span></button></div><div class="play-layout"><aside class="table-panel"><div class="eyebrow">RONDOM DE TAFEL</div><h2>De bende<span class="tiny-dot">.</span></h2><ol class="table-players">${game.players.map((p,i)=>`<li class="${i===game.turn?'current':''}">${avatar(p,i)}<div><strong>${escape(p)}</strong><small>${p===game.threeMan ? game.multiplier===2?'Dubbel 3-man · ×2':'De 3-man · ×1':i===game.turn?'Aan de beurt':'Aan tafel'}</small></div>${i===game.turn?'<span aria-label="Aan de beurt">←</span>':p===game.threeMan?'<span aria-label="3-man">♛</span>':''}</li>`).join('')}</ol><button class="text-button" id="edit-crew">Bende aanpassen ↗</button><div class="table-note">Volgorde = zitvolgorde.<br>Geef de telefoon maar door.</div></aside><div class="roll-panel"><div class="turn-label"><span class="status-dot"></span>${last?`Worp ${game.rolls} van ${escape(last.player)}`:'Een verse tafel, een verse kans.'}</div><h1>${last?'Da’s een worp<span class="serif-word">.</span>':`Gooi maar,<br><span class="serif-word">${escape(current)}.</span>`}</h1><div class="dice-stage ${rolling?'rolling':''}" id="dice-stage">${die(last?.a||3)}${die(last?.b||1)}<span class="dice-shadow"></span></div><div class="result-area" aria-live="polite" aria-atomic="true">${last?last.events.map(e=>`<div class="result-line ${escape(e.type)}"><span class="result-symbol" aria-hidden="true">${e.type==='role'?'♛':e.type==='give'?'↗':e.type==='free'?'✳':'↓'}</span><div><h3>${escape(e.title)}</h3><p>${escape(e.text)}</p></div></div>`).join(''):`<p class="first-roll-copy">Twee dobbelstenen. De rest is aan het lot.</p>`}</div><div class="roll-controls">${manual?`<form id="manual-form"><div class="manual-inputs"><label>Eerste dobbelsteen<select id="die-a">${[1,2,3,4,5,6].map(n=>`<option>${n}</option>`).join('')}</select></label><span>+</span><label>Tweede dobbelsteen<select id="die-b">${[1,2,3,4,5,6].map(n=>`<option>${n}</option>`).join('')}</select></label></div><button class="button roll-button" type="submit">Verwerk worp van ${escape(current)} <span>↗</span></button></form>`:`<button class="button roll-button" id="roll-button">${last?`${escape(current)}, jij bent`:'Gooi de dobbelstenen'} <span aria-hidden="true">⚄</span></button>`}<div class="under-roll"><button class="subtle-button" id="toggle-manual">${manual?'Digitaal gooien':'Echte dobbelstenen?'}</button><button class="subtle-button" id="undo-button" ${history.length?'':'disabled'}>↶ Worp terug</button></div></div></div><aside class="status-panel"><span class="eyebrow">DE KROON</span><div class="crown-icon" aria-hidden="true">♛</div><h2>${game.threeMan?escape(game.threeMan):'Wie wordt<br>de 3-man?'}</h2><p>${game.threeMan?game.multiplier===2?'Dubbel geluk. Dubbele slokken.':'De 3-man is gevonden.':'Gooi 2–1 en ontdek wie de kroon mag dragen.'}</p><span class="role-chip">${game.threeMan?`3-MAN ×${game.multiplier}`:'NOG NIEMAND'}</span><div class="quick-rules"><div><b>5</b><span>Vorige drinkt</span></div><div><b>7</b><span>Gooier drinkt</span></div><div><b>9</b><span>Volgende drinkt</span></div></div><button class="subtle-button" id="new-game">Nieuwe partij ↗</button></aside></div><p class="play-bottom">Op jullie tempo. Met jullie drankje. Ook prima met water of punten.</p></section>`;
-  $('#back-hub').onclick=()=>{screen='hub';render();}; $('#show-rules').onclick=()=>$('#rules-dialog').showModal();$('#edit-crew').onclick=openCrew;
+  $('#app').innerHTML = `<section class="play-screen"><div class="play-heading"><button class="text-button" id="back-hub">← De spelletjes</button><span class="eyebrow">3-MAN · JULLIE HUISREGELS</span><button class="secondary-button" id="show-rules">Spelregels <span aria-hidden="true">?</span></button></div><div class="play-layout"><aside class="table-panel"><div class="eyebrow">RONDOM DE TAFEL</div><h2>De bende<span class="tiny-dot">.</span></h2><ol class="table-players">${game.players.map((p,i)=>`<li class="${i===game.turn?'current':''}">${avatar(p,i)}<div><strong>${escape(p)}</strong><small>${p===game.threeMan ? game.multiplier===2?'Dubbel 3-man · ×2':'De 3-man · ×1':i===game.turn?'Aan de beurt':'Aan tafel'}</small></div>${i===game.turn?'<span aria-label="Aan de beurt">←</span>':p===game.threeMan?'<span aria-label="3-man">♛</span>':''}</li>`).join('')}</ol><button class="text-button" id="edit-crew">Bende aanpassen ↗</button><div class="table-note">Volgorde = zitvolgorde.<br>Geef de telefoon maar door.</div></aside><div class="roll-panel"><div class="turn-label"><span class="status-dot"></span>${last?`Worp ${game.rolls} van ${escape(last.player)}`:'Een verse tafel, een verse kans.'}</div><h1>${last?'Da’s een worp<span class="serif-word">.</span>':`Gooi maar,<br><span class="serif-word">${escape(current)}.</span>`}</h1><div class="dice-stage ${rolling?'rolling':''}" id="dice-stage">${die(last?.a||3,0)}${die(last?.b||1,1)}</div><div class="result-area" aria-live="polite" aria-atomic="true">${last?last.events.map(e=>`<div class="result-line ${escape(e.type)}"><span class="result-symbol" aria-hidden="true">${e.type==='role'?'♛':e.type==='give'?'↗':e.type==='free'?'✳':'↓'}</span><div><h3>${escape(e.title)}</h3><p>${escape(e.text)}</p></div></div>`).join(''):`<p class="first-roll-copy">Twee dobbelstenen. De rest is aan het lot.</p>`}</div><div class="roll-controls">${manual?`<form id="manual-form"><div class="manual-inputs"><label>Eerste dobbelsteen<select id="die-a">${[1,2,3,4,5,6].map(n=>`<option>${n}</option>`).join('')}</select></label><span>+</span><label>Tweede dobbelsteen<select id="die-b">${[1,2,3,4,5,6].map(n=>`<option>${n}</option>`).join('')}</select></label></div><button class="button roll-button" type="submit">Verwerk worp van ${escape(current)} <span>↗</span></button></form>`:`<button class="button roll-button" id="roll-button">${last?`${escape(current)}, jij bent`:'Gooi de dobbelstenen'} <span aria-hidden="true">⚄</span></button>`}<div class="under-roll"><button class="subtle-button" id="toggle-manual">${manual?'Digitaal gooien':'Echte dobbelstenen?'}</button><button class="subtle-button" id="undo-button" ${history.length?'':'disabled'}>↶ Worp terug</button></div></div></div><aside class="status-panel"><span class="eyebrow">DE KROON</span><div class="crown-icon" aria-hidden="true">♛</div><h2>${game.threeMan?escape(game.threeMan):'Wie wordt<br>de 3-man?'}</h2><p>${game.threeMan?game.multiplier===2?'Dubbel geluk. Dubbele slokken.':'De 3-man is gevonden.':'Gooi 2–1 en ontdek wie de kroon mag dragen.'}</p><span class="role-chip">${game.threeMan?`3-MAN ×${game.multiplier}`:'NOG NIEMAND'}</span><div class="quick-rules"><div><b>5</b><span>Vorige drinkt</span></div><div><b>7</b><span>Gooier drinkt</span></div><div><b>9</b><span>Volgende drinkt</span></div></div><button class="subtle-button" id="new-game">Nieuwe partij ↗</button></aside></div><p class="play-bottom">Op jullie tempo. Met jullie drankje. Ook prima met water of punten.</p></section>`;
+  $('#back-hub').onclick=()=>{if(!rolling){screen='hub';render();}}; $('#show-rules').onclick=()=>$('#rules-dialog').showModal();$('#edit-crew').onclick=openCrew;
   $('#new-game').onclick=()=>$('#reset-dialog').showModal();
   $('#toggle-manual').onclick=()=>{if(rolling)return;manual=!manual;renderGame();};
   $('#undo-button').onclick=()=>{if(!rolling&&history.length){game=history.pop();save();renderGame();}};
   if(manual)$('#manual-form').onsubmit=e=>{e.preventDefault();doRoll(Number($('#die-a').value),Number($('#die-b').value));};
   else $('#roll-button').onclick=()=>doRoll(randomDie(),randomDie());
 }
-function doRoll(a,b) {
-  if(rolling)return;rolling=true;
-  $('#dice-stage').classList.add('rolling');
-  document.querySelectorAll('.roll-controls button,.roll-controls select').forEach(el=>el.disabled=true);
-  const duration=window.matchMedia('(prefers-reduced-motion: reduce)').matches?0:550;
-  setTimeout(()=>{history.push(structuredClone(game));if(history.length>50)history.shift();game=resolveRoll(game,a,b);rolling=false;save();if(screen==='game')renderGame();},duration);
+async function doRoll(a,b) {
+  if(rolling)return;
+  rolling=true;
+  const stage=$('#dice-stage');
+  stage.classList.add('rolling');
+  stage.setAttribute('aria-busy','true');
+  $('.roll-panel').classList.add('is-rolling');
+  document.querySelectorAll('.roll-controls button,.roll-controls select,#back-hub,#new-game').forEach(el=>el.disabled=true);
+  try {
+    // Physical dice are already rolled: entered results appear immediately.
+    if(!manual)await animateDice(stage,[a,b],{reducedMotion:window.matchMedia('(prefers-reduced-motion: reduce)').matches});
+  } catch {
+    // A presentation failure must never lose a roll or leave the controls locked.
+  }
+  history.push(structuredClone(game));
+  if(history.length>50)history.shift();
+  game=resolveRoll(game,a,b);
+  rolling=false;
+  save();
+  if(screen==='game')renderGame();
 }
 function render() {$('#crew-count').textContent=players.length;screen==='game'?renderGame():renderHub();}
 function openCrew() {if(rolling)return;renderPlayers();$('#crew-dialog').showModal();}

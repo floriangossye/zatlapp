@@ -57,6 +57,10 @@ Expliciete interpretaties om met jullie te verfijnen:
 - Na elke worp is de volgende speler aan de beurt, ook na dubbel. Vorige/volgende volgen de spelersvolgorde.
 - De app wijst geen ontvanger voor uitgedeelde slokken aan: dat kiezen jullie zelf.
 
+## Dobbelanimatie
+
+Digitale worpen gebruiken twee CSS-kubussen met zes vaste vlakken. Ze tuimelen onafhankelijk, landen met een stuiter en tonen de werkelijk berekende worp. De animatie duurt ongeveer één seconde; invoer wordt tijdens de worp geblokkeerd. Bij verminderde beweging en handmatig ingevoerde worpen verschijnt het resultaat direct. Er zijn geen extra dependencies.
+
 ## Lokale gegevens
 
 Namen en de huidige partij worden bewaard onder `zatlapp.v1` in `localStorage`, op één toestel/browser. Er zijn geen accounts, analytics of serverrequests voor spelgegevens. Lettertypes worden geladen via Google Fonts, met systeemfonts als fallback. Geblokkeerde opslag geeft een melding en laat spelen in het geheugen toe. Een wijziging in namen of spelersvolgorde begint een nieuwe partij. Nieuwe partij wist alleen worpen en rolstatus; spelers blijven bewaard. Worp terug bewaart maximaal 50 stappen in het geheugen, tot herladen. Namen worden als tekst ontsmet voor weergave.
