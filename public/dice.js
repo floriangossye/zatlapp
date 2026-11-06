@@ -19,13 +19,13 @@ export async function animateDice(stage, values, {reducedMotion = false} = {}) {
       const direction = index === 0 ? -1 : 1;
       const duration = index === 0 ? 920 : 1040;
       const rest = getComputedStyle(die).transform;
-      const pose = (x, y, tilt = 0, scaleX = 1, scaleY = 1) =>
-        `translate3d(${x}px, ${y}px, 0) ${rest} rotateZ(${tilt}deg) scale3d(${scaleX}, ${scaleY}, 1)`;
+      const pose = (x, y, tilt = 0, scaleX = 1, scaleY = 1, tiltX = 0, tiltY = 0) =>
+        `translate3d(${x}px, ${y}px, 0) ${rest} rotateX(${tiltX}deg) rotateY(${tiltY}deg) rotateZ(${tilt}deg) scale3d(${scaleX}, ${scaleY}, 1)`;
       die.setAttribute('aria-label', 'Dobbelsteen rolt');
       animations.push(die.animate([
         {transform: pose(0, 0), offset: 0},
         {transform: pose(-direction * 3, 6, -direction * 4, 1.04, .95), offset: .12},
-        {transform: pose(direction * 18, -height, direction * 16, 1.05, 1.05), offset: .38},
+        {transform: pose(direction * 18, -height, direction * 16, 1.05, 1.05, 22, -direction * 18), offset: .38},
         {transform: pose(-direction * 5, 3, -direction * 5, 1.06, .93), offset: .67},
         {transform: pose(direction * 3, -14, direction * 3), offset: .80},
         {transform: pose(0, 1, 0, 1.02, .98), offset: .93},

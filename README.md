@@ -1,6 +1,6 @@
 # Zatlapp
 
-Een kleine, speelse webapp voor spelletjes aan tafel. De eerste speelbare versie bevat een spellenhub, een lokale spelerslijst en **3-man** met twee digitale of echte dobbelstenen. De zachte kleuren en het zwevende dobbeleiland zijn geïnspireerd op de aangeleverde game-artreferentie. Alle illustraties zijn eigen SVG/CSS; er zijn geen externe beeldassets.
+Een kleine, speelse webapp voor spelletjes aan tafel. De eerste speelbare versie bevat een spellenhub, een lokale spelerslijst en **3-man** met twee digitale of echte dobbelstenen. De hub toont meteen de speelbare games, met een geanimeerd dobbeleiland, een pint en een bierfles. De toon is kort en Vlaams; 3-man is de pechrol. Alle illustraties zijn eigen SVG/CSS; er zijn geen externe beeldassets.
 
 ## Lokaal spelen
 
@@ -33,7 +33,7 @@ De hosting is nog niet geactiveerd vanuit deze checkout: aanmelden en het juiste
 
 ## Spelers
 
-3-man kan direct starten met alleen het aantal spelers (2–16). De app gebruikt dan Speler 1, Speler 2, enzovoort, volgens de zitvolgorde. Namen toevoegen blijft optioneel via **Liever met namen?**. De gekozen spelers en de partij blijven lokaal bewaard; een andere groep start een nieuwe partij.
+3-man kan direct starten met alleen het aantal spelers (2–16). De app gebruikt dan Speler 1, Speler 2, enzovoort, volgens de zitvolgorde. Namen toevoegen blijft optioneel via **Namen toevoegen**. De gekozen spelers en de partij blijven lokaal bewaard; een andere groep start een nieuwe partij.
 
 ## Regels in deze POC
 
@@ -59,7 +59,7 @@ Expliciete interpretaties om met jullie te verfijnen:
 
 ## Dobbelanimatie
 
-Digitale worpen gebruiken twee CSS-kubussen met zes vaste vlakken. Ze tuimelen onafhankelijk, landen met een stuiter en tonen de werkelijk berekende worp. De animatie duurt ongeveer één seconde; invoer wordt tijdens de worp geblokkeerd. Bij verminderde beweging en handmatig ingevoerde worpen verschijnt het resultaat direct. Er zijn geen extra dependencies.
+Digitale worpen gebruiken twee CSS-kubussen met zes vaste vlakken. Ze tuimelen onafhankelijk en landen met een stuiter. De eindstand is een vlak bovenaanzicht met alleen het gekozen vlak zichtbaar, zodat andere ogen op de zijkanten de uitslag niet verwarren. De animatie duurt ongeveer één seconde; invoer wordt tijdens de worp geblokkeerd. Bij verminderde beweging en handmatig ingevoerde worpen verschijnt het resultaat direct. Er zijn geen extra dependencies.
 
 ## Lokale gegevens
 

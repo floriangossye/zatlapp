@@ -3,6 +3,9 @@ export function playersFromCount(count) {
   if (!Number.isInteger(count) || count < 2 || count > 16) throw new Error('Kies 2 tot 16 spelers.');
   return Array.from({length: count}, (_, i) => `Speler ${i + 1}`);
 }
+export function threeManRoleEvent(player, multiplier) {
+  return {type:'role',title:multiplier===2?`${player}, dubbel gesjareld.`:`${player}, ge zijt gesjareld.`,text:multiplier===2?'Dubbel 3-man: twee slokken per keer.':'Gij zijt 3-man. Tot iemand anders 2–1 gooit.'};
+}
 export function freshGame(players) {
   return { players: [...players], turn: 0, threeMan: null, multiplier: 1, rolls: 0, last: null };
 }
@@ -19,7 +22,7 @@ export function resolveRoll(state, a, b) {
     next.threeMan = player;
     // House rule: cap at double until a new 3-man is selected.
     next.multiplier = repeated ? 2 : 1;
-    events.push({type:'role',title: repeated ? `${player} is dubbel 3-man!` : `${player} is de 3-man!`, text: repeated ? 'Vanaf nu telt elke 3-man-slok dubbel.' : 'De kroon is van jou. Tot iemand anders 2–1 gooit.'});
+    events.push(threeManRoleEvent(player,next.multiplier));
   }
   if (a === b) events.push({type:'give',title:`${player}, deel ${a} ${a === 1 ? 'slok' : 'slokken'} uit.`,text:'Dubbel gegooid! Verdeel ze zoals je wilt.'});
   if ([5,7,9].includes(sum)) {
@@ -30,7 +33,7 @@ export function resolveRoll(state, a, b) {
   // A matching throw triggers once, even when a 3 and a multiple of 3 overlap.
   // 2–1 assigns the role first, then the new 3-man takes the matching sip.
   if (next.threeMan && (a === 3 || b === 3 || sum % 3 === 0)) events.push({type:'three',title:`${next.threeMan}, neem ${next.multiplier} ${next.multiplier === 1 ? 'slok' : 'slokken'}.`,text: next.multiplier === 2 ? 'Dubbel 3-man: deze telt dubbel.' : 'Een 3 of een totaal deelbaar door 3.'});
-  if (!events.length) events.push({type:'free',title:'Even op adem komen.',text:'Geen opdracht bij deze worp. Geef maar door.'});
+  if (!events.length) events.push({type:'free',title:'Geen opdracht.',text:''});
   next.rolls++;
   next.last = {a,b,player,events};
   next.turn = (state.turn + 1) % state.players.length;
